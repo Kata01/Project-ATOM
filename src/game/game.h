@@ -7,6 +7,8 @@
 #include "framework/includes.h"
 #include "framework/camera.h"
 #include "framework/utils.h"
+#include "framework/scene.h"
+#include "framework/entities/entity.h"
 
 class Game
 {
@@ -34,6 +36,11 @@ public:
 	//main functions
 	void render( void );
 	void update( double dt );
+
+	PlayScene* play_scene;
+	Scene* current_scene;
+	std::vector<Entity*> entities;
+	B2SetupScene* b2_setup_scene;
 
 	//events
 	void onKeyDown( SDL_KeyboardEvent event );

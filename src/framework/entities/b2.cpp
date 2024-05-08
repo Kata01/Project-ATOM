@@ -12,11 +12,7 @@ B2::B2() {
 
 // Destructor implementation
 B2::~B2() {
-    // Remove this instance from the static vector
-    auto it = std::find(b2.begin(), b2.end(), this);
-    if (it != b2.end()) {
-        b2.erase(it); // Remove if found
-    }
+    Entity::~Entity();
 }
 
 // Static function to render all B2 entities
@@ -43,8 +39,8 @@ void B2::updateAll(float seconds_elapsed) {
 }
 
 // Function to render all B2 entities (external prototype)
-void renderB2() {
-    B2::renderAll(); // Simply call the static render function
+void renderB2(Camera* camera) {
+    B2::renderAll(camera); // Simply call the static render function
 }
 
 // External active B2 count

@@ -38,6 +38,6 @@ enum PlaneType{ B2plane };
 extern int active_b2;
 
 // Function prototypes for rendering airplanes
-void renderB2();
+void renderB2(Camera* camera);
 
 #endif // AIRPLANE_H

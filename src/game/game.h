@@ -10,6 +10,10 @@
 #include "framework/scene.h"
 #include "framework/entities/entity.h"
 
+class Scene;
+class PlayScene;
+class B2SetupScene;
+
 class Game
 {
 public:
@@ -31,16 +35,21 @@ public:
 	Camera* camera; //our global camera
 	bool mouse_locked; //tells if the mouse is locked (not seen)
 
+	Mesh* plane_mesh;  // Define mesh for the plane
+	Shader* plane_shader;  // Shader for rendering
+	Texture* plane_texture;  // Optional texture for the plane
+
+
 	Game( int window_width, int window_height, SDL_Window* window );
 
 	//main functions
 	void render( void );
 	void update( double dt );
 
-	PlayScene* play_scene;
-	Scene* current_scene;
 	std::vector<Entity*> entities;
-	B2SetupScene* b2_setup_scene;
+	/*Scene* current_scene;
+	PlayScene* play_scene;
+	B2SetupScene* b2_setup_scene;*/
 
 	//events
 	void onKeyDown( SDL_KeyboardEvent event );

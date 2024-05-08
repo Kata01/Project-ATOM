@@ -18,6 +18,7 @@ float mouse_speed = 100.0f;
 Game* Game::instance = NULL;
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
+	: plane_mesh(nullptr), plane_shader(nullptr), plane_texture(nullptr) // Initialize pointers to nullptr
 {
 	this->window_width = window_width;
 	this->window_height = window_height;
@@ -35,17 +36,24 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	glEnable( GL_CULL_FACE ); //render both sides of every triangle
 	glEnable( GL_DEPTH_TEST ); //check the occlusions using the Z buffer
 
-	texture = new Texture();
+	plane_mesh = new Mesh();  // Create a new mesh
+	plane_mesh->createPlane(10.0f);  // Example: create a plane of size 10x10 units
+
+	// Load the shader
+	plane_shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");  // Load basic shader
+
+	// Load the texture (optional)
+	plane_texture = Texture::Get("data/textures/plane_texture.tga");  // Example texture
 
 	// Create our camera
 	camera = new Camera();
-	play_scene = new PlayScene(camera);
+	/*play_scene = new PlayScene(camera);
 	play_scene->setupScene(window_width, window_height);
 
 	b2_setup_scene = new B2SetupScene(camera);
 	b2_setup_scene->setupScene(window_width, window_height);
 
-	current_scene = play_scene;
+	current_scene = play_scene;*/
 	// Load one texture using the Texture Manager
 	//texture = Texture::Get("data/textures/texture.tga");
 
@@ -80,23 +88,29 @@ void Game::render(void)
 	Matrix44 m;
 	m.rotate(angle*DEG2RAD, Vector3(0.0f, 1.0f, 0.0f));
 
-	if(shader)
-	{
+	if (plane_shader) {
 		// Enable shader
-		shader->enable();
+		plane_shader->enable();
 
-		// Upload uniforms
-		shader->setUniform("u_color", Vector4(1,1,1,1));
-		shader->setUniform("u_viewprojection", camera->viewprojection_matrix );
-		shader->setUniform("u_texture", texture, 0);
-		shader->setUniform("u_model", m);
-		shader->setUniform("u_time", time);
+		// Set uniforms
+		plane_shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+		plane_shader->setUniform("u_color", Vector4(1, 1, 1, 1)); // White color
 
-		// Do the draw call
-		mesh->render( GL_TRIANGLES );
+		if (plane_texture) {
+			plane_shader->setUniform("u_texture", plane_texture, 0); // Bind texture
+		}
 
-		// Disable shader
-		shader->disable();
+		// Define a transformation matrix for the plane
+		Matrix44 plane_model;
+		plane_model.setTranslation(0.0f, -5.0f, 0.0f); // Position it at some point in the scene
+		plane_shader->setUniform("u_model", plane_model); // Apply the transformation
+
+		// Render the plane mesh
+		if (plane_mesh) {
+			plane_mesh->render(GL_TRIANGLES); // Draw the plane
+		}
+
+		plane_shader->disable(); // Disable shader
 	}
 
 	// Draw the floor grid
@@ -111,8 +125,6 @@ void Game::render(void)
 
 void Game::update(double seconds_elapsed)
 {
-
-	current_scene->update(elapsed_time);
 
 	float speed = seconds_elapsed * mouse_speed; //the speed is defined by the seconds_elapsed so it goes constant
 

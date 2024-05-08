@@ -17,10 +17,6 @@ public:
 
 	Entity entity;
 
-	Texture* texture = nullptr;
-	Shader* shader = nullptr;
-	Vector4 color;
-
 	// Methods overwritten from base class
 	void render(Camera* camera) override;
 	void update(float elapsed_time) override;

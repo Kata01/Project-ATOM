@@ -15,10 +15,13 @@ Shader* shader = NULL;
 float angle = 0;
 float mouse_speed = 100.0f;
 
+Mesh* sphereMesh = Mesh::Get("data/meshes/sphere.obj"); // Load a cube mesh
+Texture* sphereTexture = Texture::Get("data/textures/texture.tga", 1, 1); // Load a texture
+Shader* basicShader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs"); // Load a basic shader
+
 Game* Game::instance = NULL;
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
-	: plane_mesh(nullptr), plane_shader(nullptr), plane_texture(nullptr) // Initialize pointers to nullptr
 {
 	this->window_width = window_width;
 	this->window_height = window_height;
@@ -36,35 +39,27 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	glEnable( GL_CULL_FACE ); //render both sides of every triangle
 	glEnable( GL_DEPTH_TEST ); //check the occlusions using the Z buffer
 
-	plane_mesh = new Mesh();  // Create a new mesh
-	plane_mesh->createPlane(10.0f);  // Example: create a plane of size 10x10 units
-
-	// Load the shader
-	plane_shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");  // Load basic shader
-
-	// Load the texture (optional)
-	plane_texture = Texture::Get("data/textures/plane_texture.tga");  // Example texture
-
 	// Create our camera
 	camera = new Camera();
 	camera->lookAt(Vector3(0.f, 100.f, 100.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f)); //position the camera and point to 0,0,0
 	camera->setPerspective(70.f, window_width / (float)window_height, 0.1f, 10000.f); //set the projection, we want to be perspective
 
-	/*play_scene = new PlayScene(camera);
-	play_scene->setupScene(window_width, window_height);
 
-	b2_setup_scene = new B2SetupScene(camera);
-	b2_setup_scene->setupScene(window_width, window_height);
+	
+	//cube->material.texture = texture;
 
-	current_scene = play_scene;*/
-	// Load one texture using the Texture Manager
-	//texture = Texture::Get("data/textures/texture.tga");
 
-	// Example of loading Mesh from Mesh Manager
-	mesh = Mesh::Get("data/meshes/box.ASE");
 
-	// Example of shader loading using the shaders manager
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+
+	// Create a material using the shader and texture
+	Material sphereMaterial;
+	sphereMaterial.shader = basicShader;
+	sphereMaterial.diffuse = sphereTexture;
+
+	EntityMesh* sphereEntity = new EntityMesh(sphereMesh, sphereMaterial, "Sphere");
+
+	sphereEntity->model.translate(0.0f, 0.0f, 0.0f); // Set initial position
+	sphereEntity->model.rotate(45.0f, Vector3(0.0f, 1.0f, 0.0f));
 
 	// Hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
@@ -79,45 +74,20 @@ void Game::render(void)
 	// Clear the window and the depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Set the camera as default
-	camera->enable();
 
 	// Set flags
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
    
-	// Create model matrix for cube
-	Matrix44 m;
-	m.rotate(angle*DEG2RAD, Vector3(0.0f, 1.0f, 0.0f));
+	// Set the camera as default
+	camera->enable();
 
-	if (plane_shader) {
-		// Enable shader
-		plane_shader->enable();
-
-		// Set uniforms
-		plane_shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-		plane_shader->setUniform("u_color", Vector4(1, 1, 1, 1)); // White color
-
-		if (plane_texture) {
-			plane_shader->setUniform("u_texture", plane_texture, 0); // Bind texture
-		}
-
-		// Define a transformation matrix for the plane
-		Matrix44 plane_model;
-		plane_model.setTranslation(0.0f, -5.0f, 0.0f); // Position it at some point in the scene
-		plane_shader->setUniform("u_model", plane_model); // Apply the transformation
-
-		// Render the plane mesh
-		if (plane_mesh) {
-			plane_mesh->render(GL_TRIANGLES); // Draw the plane
-		}
-
-		plane_shader->disable(); // Disable shader
-	}
 
 	// Draw the floor grid
 	drawGrid();
+
+	sphereEntity->render(camera);
 
 	// Render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);

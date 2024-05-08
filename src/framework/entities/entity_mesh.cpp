@@ -12,13 +12,12 @@ EntityMesh::EntityMesh(Mesh* mesh, const Material& material, const std::string& 
 void EntityMesh::render(Camera* camera) {
 
 	// Get the last camera that was activated 
-	camera = Camera::current;
 
 	// Enable shader and pass uniforms 
 	material.shader->enable();
 	material.shader->setUniform("u_model", model);
-	material.shader->setUniform("u_viewproj", camera->viewprojection_matrix);
-	material.shader->setTexture("u_texture", texture, 1);
+	material.shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	material.shader->setTexture("u_texture", material.diffuse, 1);
 
 
 	material.shader->setUniform("u_model", getGlobalMatrix());

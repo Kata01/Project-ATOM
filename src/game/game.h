@@ -9,6 +9,9 @@
 #include "framework/utils.h"
 #include "framework/scene.h"
 #include "framework/entities/entity.h"
+#include "framework/entities/entity_mesh.h"
+#include "graphics/material.h"
+
 
 class Scene;
 class PlayScene;
@@ -35,10 +38,9 @@ public:
 	Camera* camera; //our global camera
 	bool mouse_locked; //tells if the mouse is locked (not seen)
 
-	Mesh* plane_mesh;  // Define mesh for the plane
-	Shader* plane_shader;  // Shader for rendering
-	Texture* plane_texture;  // Optional texture for the plane
-
+	EntityMesh* sphereEntity; // Declaring the sphere entity here
+	Mesh* sphereMesh;
+	Material sphereMaterial;
 
 	Game( int window_width, int window_height, SDL_Window* window );
 

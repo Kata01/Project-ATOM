@@ -15,9 +15,10 @@ Shader* shader = NULL;
 float angle = 0;
 float mouse_speed = 100.0f;
 
-Mesh* sphereMesh = Mesh::Get("data/meshes/sphere.obj"); // Load a cube mesh
-Texture* sphereTexture = Texture::Get("data/textures/texture.tga", 1, 1); // Load a texture
-Shader* basicShader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs"); // Load a basic shader
+Mesh* sphereMesh = nullptr; // Load a cube mesh
+Texture* sphereTexture = nullptr;
+Shader* basicShader = nullptr;
+Material sphereMaterial;
 
 Game* Game::instance = NULL;
 
@@ -48,15 +49,14 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	
 	//cube->material.texture = texture;
 
+	sphereMesh = Mesh::Get("data/meshes/B-2_Low.obj");
+	sphereTexture = Texture::Get("data/textures/texture.tga", 1, 1); // Load a texture
+	basicShader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs"); // Load a basic shader
 
-
-
-	// Create a material using the shader and texture
-	Material sphereMaterial;
 	sphereMaterial.shader = basicShader;
 	sphereMaterial.diffuse = sphereTexture;
 
-	EntityMesh* sphereEntity = new EntityMesh(sphereMesh, sphereMaterial, "Sphere");
+	sphereEntity = new EntityMesh(sphereMesh, sphereMaterial, "Sphere");
 
 	sphereEntity->model.translate(0.0f, 0.0f, 0.0f); // Set initial position
 	sphereEntity->model.rotate(45.0f, Vector3(0.0f, 1.0f, 0.0f));
